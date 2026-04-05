@@ -28,13 +28,13 @@ async function sendMessage() {
 
     chatBox.innerHTML += `<div class="user">You: ${message}</div>`;
 
-    const response = await fetch("/chat", {
+    const res = await fetch("/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({message: message})
     });
 
-    const data = await response.json();
+    const data = await res.json();
 
     chatBox.innerHTML += `<div class="bot">Bot: ${data.reply}</div>`;
 
