@@ -1,23 +1,29 @@
 import json
+import os
 from openai import OpenAI
 
-client = OpenAI(api_key="YOUR_API_KEY_HERE")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-MEMORY_FILE = "memory.json"
+def get_memory_file(user_id):
+    return f"memory_{user_id}.json"
 
-def load_memory():
-    try:
-        with open(MEMORY_FILE, "r") as f:
+def load_memory(user_id):
+    file = get_memory_file(user_id)
+
+    if os.path.exists(file):
+        with open(file, "r") as f:
             return json.load(f)
-    except:
-        return [{"role": "system", "content": "You are a helpful assistant."}]
 
-def save_memory(messages):
-    with open(MEMORY_FILE, "w") as f:
+    return [
+        {"role": "system", "content": "You are a helpful, friendly AI assistant."}
+    ]
+
+def save_memory(user_id, messages):
+    with open(get_memory_file(user_id), "w") as f:
         json.dump(messages, f, indent=2)
 
-def get_ai_response(user_input):
-    messages = load_memory()
+def get_ai_response(user_id, user_input):
+    messages = load_memory(user_id)
 
     messages.append({"role": "user", "content": user_input})
 
@@ -30,6 +36,6 @@ def get_ai_response(user_input):
     reply = response.choices[0].message.content
 
     messages.append({"role": "assistant", "content": reply})
-    save_memory(messages)
+    save_memory(user_id, messages)
 
     return reply
